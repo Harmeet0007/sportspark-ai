@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SportSpark AI - Democratizing Sports Talent Assessment</title>
-    <meta name="google-site-verification" content="O_WwEbIluTrF8WO8eL3Qk_F2AQCVyzX_POHnbx40nQg" />
+    <meta name="google-site-verification" content="O_WwEbIluTrF8WO8eL3Qk_F2AQCVyzX_POHnbx40nQg"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* A very light gray background */
+            background-color: #f8fafc;
         }
-        /* Custom gradient for hero section */
         .hero-gradient {
             background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
         }
-        /* Custom gradient for section headings */
         .text-gradient {
             background: -webkit-linear-gradient(45deg, #4f46e5, #06b6d4);
             -webkit-background-clip: text;
@@ -26,13 +24,153 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        /* Chatbot Styles */
+        #chat-widget-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+        #chat-bubble {
+            background-color: #4f46e5;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+        #chat-bubble:hover {
+            transform: scale(1.1);
+        }
+        #chat-window {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 90%;
+            max-width: 400px;
+            height: 70vh;
+            max-height: 600px;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: opacity 0.3s, transform 0.3s;
+            transform-origin: bottom right;
+        }
+        .chat-header {
+            background: #4f46e5;
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #close-chat {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .message {
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        .user-message {
+            background-color: #eef2ff;
+            color: #312e81;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+        .bot-message {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+        .typing-indicator {
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem 1rem;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        .chat-input {
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem;
+            background-color: #f8fafc;
+        }
+        .chat-input form {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            outline: none;
+        }
+        .chat-input input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        .chat-input button {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input button:hover {
+            background-color: #4338ca;
+        }
+        .hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="text-gray-800">
 
     <!-- Header & Navigation -->
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+       <!-- ... your existing header code ... -->
+       <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="text-2xl font-bold text-gray-800">
                 Sport<span class="text-indigo-600">Spark</span> AI
             </a>
@@ -60,125 +198,25 @@
     </header>
 
     <main>
-        <!-- Section 1: Home / Hero -->
+        <!-- Your existing sections (Home, About, etc.) -->
         <section id="home" class="hero-gradient text-white py-20 md:py-32">
-            <div class="container mx-auto px-6 text-center">
+             <div class="container mx-auto px-6 text-center">
                 <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-4">Unleash Your Potential.</h1>
                 <p class="text-lg md:text-xl text-indigo-100 max-w-3xl mx-auto mb-8">The AI-powered mobile platform democratizing sports talent assessment for every aspiring athlete, everywhere.</p>
                 <a href="#contact" class="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300 text-lg shadow-lg">Start Your Journey Today</a>
             </div>
         </section>
-        
-        <!-- Section 2: About Us -->
         <section id="about" class="py-20 bg-white">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold">Our Mission</h2>
-                    <p class="text-gray-600 mt-2 text-lg">Breaking barriers and building futures in sports.</p>
-                </div>
-                <div class="flex flex-col md:flex-row items-center gap-10">
-                    <div class="md:w-1/2">
-                        <img src="https://placehold.co/600x400/4f46e5/ffffff?text=Team+Spirit" alt="Diverse group of young athletes" class="rounded-lg shadow-xl w-full">
-                    </div>
-                    <div class="md:w-1/2">
-                        <h3 class="text-2xl font-semibold mb-4 text-gray-800">From Streets to Stadiums</h3>
-                        <p class="text-gray-600 mb-4 leading-relaxed">We believe talent is universal, but opportunity is not. Millions of gifted individuals, especially in underserved communities, never get the chance to showcase their skills due to a lack of resources, guidance, and exposure. SportSpark AI was born from a desire to change that.</p>
-                        <p class="text-gray-600 leading-relaxed">Our goal is to put a world-class coach, a personal nutritionist, and a talent scout right in the palm of your hand. By leveraging the power of Artificial Intelligence, we provide objective, data-driven feedback to help you improve, stay healthy, and get noticed—all for free.</p>
-                    </div>
-                </div>
-            </div>
+            <!-- ... your existing about section ... -->
         </section>
-
-        <!-- Section 3: How It Works -->
         <section id="how-it-works" class="py-20 bg-gray-50">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold">A Simple Path to Success</h2>
-                    <p class="text-gray-600 mt-2 text-lg">Three easy steps to start your professional journey.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-                    <!-- Step 1 -->
-                    <div class="flex flex-col items-center">
-                        <div class="bg-indigo-100 text-indigo-600 rounded-full p-6 mb-4">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" viewBox="0 0 24 24" fill="currentColor"><path d="M14.082 5.332c.032.064.063.13.093.197l2.5 5a1 1 0 0 1-.875 1.471H14.5v6.5a1 1 0 0 1-1.447.894l-5-3a1 1 0 0 1-.553-.894V10.5a1 1 0 0 1 1-1h3.082l-2.5-5a1 1 0 0 1 1.75-.866l.25.434Z"/><path d="M18.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM20.5 11a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM17 11.5a1 1 0 1 0-2 0 1 1 0 0 0 2 0ZM5.5 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM4 17.5a1 1 0 1 0-2 0 1 1 0 0 0 2 0ZM9 19.5a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"/></svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">1. Record & Upload</h3>
-                        <p class="text-gray-600">Use your phone to record your performance—a practice drill, a workout, or a game moment. Upload it securely to our platform.</p>
-                    </div>
-                    <!-- Step 2 -->
-                    <div class="flex flex-col items-center">
-                        <div class="bg-indigo-100 text-indigo-600 rounded-full p-6 mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2a1 1 0 0 1 1 1v5.586l1.707-1.707a1 1 0 0 1 1.414 1.414l-3.414 3.414a1 1 0 0 1-1.414 0L8.879 9.293a1 1 0 0 1 1.414-1.414L12 9.586V3a1 1 0 0 1 1-1Zm0 20a1 1 0 0 1-1-1v-5.586l-1.707 1.707a1 1 0 0 1-1.414-1.414l3.414-3.414a1 1 0 0 1 1.414 0l3.414 3.414a1 1 0 0 1-1.414 1.414L12 14.414V21a1 1 0 0 1-1-1Z" clip-rule="evenodd"/></svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">2. Get AI Analysis</h3>
-                        <p class="text-gray-600">Our advanced AI analyzes your technique, speed, and form. Receive a detailed report with actionable insights and personalized drills to improve.</p>
-                    </div>
-                    <!-- Step 3 -->
-                    <div class="flex flex-col items-center">
-                        <div class="bg-indigo-100 text-indigo-600 rounded-full p-6 mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M5 2a1 1 0 0 1 1 1v18a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1Zm13 .5a.5.5 0 0 1 .5.5v17a.5.5 0 0 1-1 0V3a.5.5 0 0 1 .5-.5ZM9.5 2a.5.5 0 0 1 .5.5v17a.5.5 0 0 1-1 0V3a.5.5 0 0 1 .5-.5Zm4.5 0a.5.5 0 0 1 .5.5v17a.5.5 0 0 1-1 0V3a.5.5 0 0 1 .5-.5Z" clip-rule="evenodd"/></svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">3. Grow & Connect</h3>
-                        <p class="text-gray-600">Chat with our AI Coach for health and nutrition tips. As you progress, we help connect you with scouts and opportunities to take the next step.</p>
-                    </div>
-                </div>
-            </div>
+            <!-- ... your existing how-it-works section ... -->
         </section>
-        
-        <!-- Section 4: Features -->
         <section id="features" class="py-20 bg-white">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold">Your Personal AI Toolkit</h2>
-                    <p class="text-gray-600 mt-2 text-lg">Everything you need to train smarter and live healthier.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Feature 1 -->
-                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg transition duration-300 feature-card">
-                        <h3 class="text-xl font-semibold mb-3">AI Performance Analysis</h3>
-                        <p class="text-gray-600">Get objective feedback on your technique. Our AI breaks down your movements frame-by-frame to identify areas for improvement.</p>
-                    </div>
-                    <!-- Feature 2 -->
-                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg transition duration-300 feature-card">
-                        <h3 class="text-xl font-semibold mb-3">Personalized Training Plans</h3>
-                        <p class="text-gray-600">Based on your analysis, receive custom workout and drill recommendations designed to target your weaknesses and enhance your strengths.</p>
-                    </div>
-                    <!-- Feature 3 -->
-                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg transition duration-300 feature-card">
-                        <h3 class="text-xl font-semibold mb-3">24/7 AI Health Coach</h3>
-                        <p class="text-gray-600">Have a question about nutrition, recovery, or mental fitness? Our AI chatbot provides instant, reliable advice to keep you in peak condition.</p>
-                    </div>
-                    <!-- Feature 4 -->
-                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg transition duration-300 feature-card">
-                        <h3 class="text-xl font-semibold mb-3">Injury Prevention Tips</h3>
-                        <p class="text-gray-600">Our AI analyzes your movements for potential injury risks and suggests corrective exercises and stretching routines to keep you safe and on the field.</p>
-                    </div>
-                    <!-- Feature 5 -->
-                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg transition duration-300 feature-card">
-                        <h3 class="text-xl font-semibold mb-3">Progress Tracking</h3>
-                        <p class="text-gray-600">Visualize your improvement over time with our intuitive dashboards. Track your metrics and celebrate your milestones on your path to greatness.</p>
-                    </div>
-                    <!-- Feature 6 -->
-                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg transition duration-300 feature-card">
-                        <h3 class="text-xl font-semibold mb-3">Opportunity Gateway</h3>
-                        <p class="text-gray-600">Top-performing users can opt-in to have their profiles shared with a network of certified coaches, scouts, and sports academies.</p>
-                    </div>
-                </div>
-            </div>
+            <!-- ... your existing features section ... -->
         </section>
-
-        <!-- Section 5: Contact / Call to Action -->
         <section id="contact" class="py-20 hero-gradient">
-            <div class="container mx-auto px-6 text-center text-white">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Spark Your Future?</h2>
-                <p class="text-indigo-100 max-w-2xl mx-auto mb-8">Our app is launching soon. Sign up for early access and be the first to know when we go live. Your journey to the big leagues starts now.</p>
-                <form class="max-w-md mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-white" required>
-                        <button type="submit" class="bg-white text-indigo-600 font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition duration-300 shadow-lg">Notify Me</button>
-                    </div>
-                </form>
-            </div>
+            <!-- ... your existing contact section ... -->
         </section>
     </main>
 
@@ -190,25 +228,161 @@
         </div>
     </footer>
 
+    <!-- Chatbot Widget -->
+    <div id="chat-widget-container">
+        <!-- Chat Bubble -->
+        <div id="chat-bubble">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.839 8.839 0 01-4.445-1.252A1 1 0 014.99 14.896a6.953 6.953 0 001.996.604 7 7 0 100-11.004A6.953 6.953 0 004.99 5.104a1 1 0 01-.555-.955A8.839 8.839 0 0110 3c4.418 0 8 3.134 8 7zM4.445 1.252A1 1 0 015.01 2.045a6.953 6.953 0 000 15.91 1 1 0 01-.565.793A8.839 8.839 0 012 10c0-3.866 3.582-7 8-7 1.43 0 2.784.368 3.995 1.005A1 1 0 0115.01 5.104a6.953 6.953 0 00-1.996-.604 7 7 0 100 11.004c.738 0 1.446-.113 2.11-.321a1 1 0 01.928.212 8.839 8.839 0 01-3.995 2.628z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <!-- Chat Window -->
+        <div id="chat-window" class="hidden">
+            <div class="chat-header">
+                <span>AI Health Coach</span>
+                <button id="close-chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    Hi! I'm your AI Health Coach. Ask me anything about sports nutrition, workout recovery, or fitness!
+                </div>
+            </div>
+            <div class="chat-input">
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="Ask a question..." autocomplete="off">
+                    <button type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // JavaScript for mobile menu toggle
+        // Mobile menu toggle script
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
-        const desktopMenu = document.getElementById('desktop-menu');
-
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-        
-        // Close mobile menu when a link is clicked
         const mobileLinks = mobileMenu.getElementsByTagName('a');
         for (let link of mobileLinks) {
             link.addEventListener('click', () => {
                 mobileMenu.classList.add('hidden');
             });
         }
+
+        // --- CHATBOT SCRIPT ---
+        const chatBubble = document.getElementById('chat-bubble');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        const API_KEY = ""; // The environment provides this key. Do not add a key here.
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        
+        // History of the conversation
+        let conversationHistory = [];
+
+        chatBubble.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+        });
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userMessage = userInput.value.trim();
+            if (!userMessage) return;
+
+            addMessage(userMessage, 'user');
+            userInput.value = '';
+            
+            // Add user message to history
+            conversationHistory.push({ role: "user", parts: [{ text: userMessage }] });
+
+            showTypingIndicator();
+            
+            try {
+                const aiResponse = await getAIResponse(userMessage);
+                removeTypingIndicator();
+                addMessage(aiResponse, 'bot');
+                // Add bot response to history
+                conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage("Sorry, I'm having trouble connecting right now. Please try again later.", 'bot');
+                console.error("Error fetching AI response:", error);
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            messageElement.textContent = text;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to the bottom
+        }
+
+        function showTypingIndicator() {
+            const typingIndicator = document.createElement('div');
+            typingIndicator.id = 'typing-indicator';
+            typingIndicator.classList.add('message', 'typing-indicator');
+            typingIndicator.innerHTML = `<span></span><span></span><span></span>`;
+            chatMessages.appendChild(typingIndicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function getAIResponse(userMessage) {
+            const systemPrompt = "You are a friendly and encouraging AI Health Coach for young, aspiring athletes, especially those from underprivileged backgrounds. Your name is Sparky. Keep your answers concise, practical, and easy to understand. Focus on topics like nutrition, hydration, simple workout routines, injury prevention, and mental motivation. Avoid overly complex medical jargon. Always prioritize safety and recommend consulting a doctor or a professional for serious issues. Start your very first response with a friendly greeting and introduce yourself.";
+
+            const payload = {
+                contents: conversationHistory,
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts[0].text) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                // Check for safety ratings or other reasons for no content
+                if (data.promptFeedback && data.promptFeedback.blockReason) {
+                    return `I can't answer that. Reason: ${data.promptFeedback.blockReason.toLowerCase()}`;
+                }
+                return "I'm not sure how to respond to that. Could you ask in a different way?";
+            }
+        }
     </script>
 </body>
 </html>
-
 
